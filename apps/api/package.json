@@ -1,0 +1,7 @@
+{
+  "name": "api",
+  "scripts": {
+    "dev": "ts-node-dev src/index.ts --respawn",
+    "build": "tsc"
+  }
+}
