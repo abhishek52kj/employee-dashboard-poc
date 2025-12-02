@@ -10,7 +10,9 @@ import {
     X,
     LogOut,
     PieChart,
-    Briefcase
+    Briefcase,
+    FileText,
+    Calendar
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -42,6 +44,16 @@ const menuItems = [
         title: "Analytics",
         icon: PieChart,
         href: "/analytics",
+    },
+    {
+        title: "Activity Logs",
+        icon: FileText,
+        href: "/activity-logs",
+    },
+    {
+        title: "Leaves",
+        icon: Calendar,
+        href: "/leaves",
     },
     {
         title: "Organization",

@@ -11,6 +11,9 @@ import pino from 'pino'
 import { PrismaClient } from '@prisma/client'
 import { EmployeeResolver } from './resolvers/employee'
 import { AuthResolver } from './resolvers/auth'
+import { DashboardResolver } from './resolvers/dashboard'
+import { ActivityLogResolver } from './resolvers/activity-log'
+import { LeaveResolver } from './resolvers/leave'
 import { createDataLoaders } from './utils/dataLoaders'
 import { customAuthChecker } from './middlewares/auth'
 import { Context } from './types/context'
@@ -22,7 +25,7 @@ async function main() {
   const prisma = new PrismaClient()
 
   const schema = await buildSchema({
-    resolvers: [EmployeeResolver, AuthResolver],
+    resolvers: [EmployeeResolver, AuthResolver, DashboardResolver, ActivityLogResolver, LeaveResolver],
     validate: true,
     authChecker: customAuthChecker,
   })
@@ -31,6 +34,7 @@ async function main() {
 
   app.use(helmet())
   app.use(cors({ origin: '*' })) // Change to frontend URL in prod
+  app.use(express.json())
   app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }) as unknown as RequestHandler) // Strong cast for type safety
   app.use((req, res, next) => {
     const authHeader = req.headers.authorization

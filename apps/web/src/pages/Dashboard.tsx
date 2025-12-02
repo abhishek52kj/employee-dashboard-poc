@@ -1,12 +1,85 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { gql } from 'graphql-request'
+import { client } from '@/lib/client'
+
+import { useDashboardStats } from "@/hooks/useDashboardStats"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useState } from "react"
+import { toast } from "sonner"
+
+const EXPORT_EMPLOYEES_QUERY = gql`
+  query ExportEmployees {
+    exportEmployees {
+      id
+      name
+      email
+      role
+      department
+      position
+      status
+      joinDate
+      salary
+    }
+  }
+`
 
 export default function Dashboard() {
+    const { data: stats, isLoading, error } = useDashboardStats()
+    const [isDownloading, setIsDownloading] = useState(false)
+
+    const handleDownloadReport = async () => {
+        try {
+            setIsDownloading(true)
+            const { exportEmployees } = await client.request<{ exportEmployees: any[] }>(EXPORT_EMPLOYEES_QUERY)
+
+            const headers = ['ID', 'Name', 'Email', 'Role', 'Department', 'Position', 'Status', 'Join Date', 'Salary']
+            const csvContent = [
+                headers.join(','),
+                ...exportEmployees.map(emp => [
+                    emp.id,
+                    `"${emp.name}"`,
+                    emp.email,
+                    emp.role,
+                    emp.department,
+                    emp.position,
+                    emp.status,
+                    emp.joinDate,
+                    emp.salary
+                ].join(','))
+            ].join('\n')
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+            const link = document.createElement('a')
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob)
+                link.setAttribute('href', url)
+                link.setAttribute('download', `employees_report_${new Date().toISOString().split('T')[0]}.csv`)
+                link.style.visibility = 'hidden'
+                document.body.appendChild(link)
+                link.click()
+                document.body.removeChild(link)
+            }
+            toast.success("Report downloaded successfully")
+        } catch (error) {
+            console.error('Failed to download report:', error)
+            toast.error("Failed to download report")
+        } finally {
+            setIsDownloading(false)
+        }
+    }
+
+    if (error) {
+        return <div className="p-6 text-red-500">Error loading dashboard stats.</div>
+    }
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-                <Button>Download Report</Button>
+                <Button onClick={handleDownloadReport} disabled={isDownloading}>
+                    {isDownloading ? 'Downloading...' : 'Download Report'}
+                </Button>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -15,8 +88,14 @@ export default function Dashboard() {
                         <CardTitle className="text-sm font-medium">Total Employees</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">1,234</div>
-                        <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+                        {isLoading ? (
+                            <Skeleton className="h-8 w-20" />
+                        ) : (
+                            <>
+                                <div className="text-2xl font-bold">{stats?.totalEmployees}</div>
+                                <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+                            </>
+                        )}
                     </CardContent>
                 </Card>
                 <Card>
@@ -24,8 +103,14 @@ export default function Dashboard() {
                         <CardTitle className="text-sm font-medium">Active Departments</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">12</div>
-                        <p className="text-xs text-muted-foreground">+2 new departments</p>
+                        {isLoading ? (
+                            <Skeleton className="h-8 w-20" />
+                        ) : (
+                            <>
+                                <div className="text-2xl font-bold">{stats?.activeDepartments}</div>
+                                <p className="text-xs text-muted-foreground">+2 new departments</p>
+                            </>
+                        )}
                     </CardContent>
                 </Card>
                 <Card>
@@ -33,8 +118,14 @@ export default function Dashboard() {
                         <CardTitle className="text-sm font-medium">Attendance Rate</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">95.4%</div>
-                        <p className="text-xs text-muted-foreground">+1.2% from last week</p>
+                        {isLoading ? (
+                            <Skeleton className="h-8 w-20" />
+                        ) : (
+                            <>
+                                <div className="text-2xl font-bold">{stats?.attendanceRate}%</div>
+                                <p className="text-xs text-muted-foreground">+1.2% from last week</p>
+                            </>
+                        )}
                     </CardContent>
                 </Card>
                 <Card>
@@ -42,8 +133,14 @@ export default function Dashboard() {
                         <CardTitle className="text-sm font-medium">Pending Requests</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">23</div>
-                        <p className="text-xs text-muted-foreground">-5 since yesterday</p>
+                        {isLoading ? (
+                            <Skeleton className="h-8 w-20" />
+                        ) : (
+                            <>
+                                <div className="text-2xl font-bold">{stats?.pendingRequests}</div>
+                                <p className="text-xs text-muted-foreground">-5 since yesterday</p>
+                            </>
+                        )}
                     </CardContent>
                 </Card>
             </div>

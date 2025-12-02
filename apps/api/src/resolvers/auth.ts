@@ -32,4 +32,30 @@ export class AuthResolver {
     if (!ctx.user) throw new Error('Not authenticated')
     return ctx.prisma.user.findUnique({ where: { id: ctx.user.id } })
   }
+
+  @Authorized(['EMPLOYEE'])
+  @Mutation(() => Boolean)
+  async changePassword(
+    @Arg('currentPassword') currentPassword: string,
+    @Arg('newPassword') newPassword: string,
+    @Ctx() ctx: Context
+  ): Promise<boolean> {
+    if (!ctx.user) throw new Error('Not authenticated')
+
+    const user = await ctx.prisma.user.findUnique({ where: { id: ctx.user.id } })
+    if (!user) throw new Error('User not found')
+
+    const isValid = await bcrypt.compare(currentPassword, user.password)
+    if (!isValid) {
+      throw new Error('Invalid current password')
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+    await ctx.prisma.user.update({
+      where: { id: ctx.user.id },
+      data: { password: hashedPassword },
+    })
+
+    return true
+  }
 }

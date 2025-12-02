@@ -1,5 +1,6 @@
 import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, ObjectType, Authorized, registerEnumType, FieldResolver, Root } from 'type-graphql'
-import { Employee, Department, EmployeeStatus, UserRole } from '@prisma/client'
+import { Department, EmployeeStatus, UserRole } from '@prisma/client'
+import type { Employee } from '@prisma/client'
 import { User } from '../types/user'
 import { Context } from '../types/context'
 import { IsOptional, IsEnum, IsInt, IsString, Min, Max, IsDate } from 'class-validator'
@@ -102,7 +103,12 @@ class CreateEmployeeInput {
   @Field(() => String, { nullable: true })
   @IsOptional()
   @IsString()
-  role?: string // Changed to string
+  role?: string
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  @IsString()
+  avatar?: string
 }
 
 @InputType()
@@ -154,6 +160,11 @@ class UpdateEmployeeInput {
   @IsOptional()
   @IsString()
   role?: string
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  @IsString()
+  avatar?: string
 }
 
 @ObjectType()
@@ -250,8 +261,8 @@ export class EmployeeResolver {
     }
 
     const where = {
-      department: departmentMap[filter?.department?.toLowerCase()],
-      status: statusMap[filter?.status?.toLowerCase()],
+      department: filter?.department ? departmentMap[filter.department.toLowerCase()] : undefined,
+      status: filter?.status ? statusMap[filter.status.toLowerCase()] : undefined,
       age: { gte: filter?.ageMin, lte: filter?.ageMax },
       OR: filter?.search ? [
         { name: { contains: filter.search, mode: 'insensitive' as const } },
@@ -283,6 +294,15 @@ export class EmployeeResolver {
   }
 
   @Authorized(['ADMIN'])
+  @Query(() => [EmployeeModel])
+  async exportEmployees(@Ctx() ctx: Context) {
+    return ctx.prisma.employee.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: { user: true },
+    })
+  }
+
+  @Authorized(['ADMIN'])
   @Mutation(() => EmployeeModel)
   async createEmployee(@Arg('input') input: CreateEmployeeInput, @Ctx() ctx: Context) {
     const departmentMap: Record<string, Department> = {
@@ -305,11 +325,24 @@ export class EmployeeResolver {
     const mappedInput = {
       ...input,
       department: departmentMap[input.department.toLowerCase()] || input.department as Department,
-      status: statusMap[input.status?.toLowerCase()] || input.status as EmployeeStatus || 'ACTIVE',
-      role: roleMap[input.role?.toLowerCase()] || input.role as UserRole || 'EMPLOYEE',
+      status: input.status ? statusMap[input.status.toLowerCase()] || input.status as EmployeeStatus : 'ACTIVE',
+      role: input.role ? roleMap[input.role.toLowerCase()] || input.role as UserRole : 'EMPLOYEE',
     }
 
-    return ctx.prisma.employee.create({ data: mappedInput })
+    const employee = await ctx.prisma.employee.create({ data: mappedInput })
+
+    if (ctx.user) {
+      await ctx.prisma.activityLog.create({
+        data: {
+          action: 'CREATE',
+          entity: 'Employee',
+          details: `Created employee ${employee.name}`,
+          userId: ctx.user.id,
+        },
+      })
+    }
+
+    return employee
   }
 
   @Authorized(['orSelf'])
@@ -339,13 +372,41 @@ export class EmployeeResolver {
       role: input.role ? roleMap[input.role.toLowerCase()] : undefined,
     }
 
-    return ctx.prisma.employee.update({ where: { id }, data: mappedInput })
+    const employee = await ctx.prisma.employee.update({ where: { id }, data: mappedInput })
+
+    if (ctx.user) {
+      await ctx.prisma.activityLog.create({
+        data: {
+          action: 'UPDATE',
+          entity: 'Employee',
+          details: `Updated employee ${employee.name}`,
+          userId: ctx.user.id,
+        },
+      })
+    }
+
+    return employee
   }
 
   @Authorized(['ADMIN'])
   @Mutation(() => Boolean)
   async deleteEmployee(@Arg('id') id: string, @Ctx() ctx: Context) {
+    const employee = await ctx.prisma.employee.findUnique({ where: { id } })
+    if (!employee) return false
+
     await ctx.prisma.employee.delete({ where: { id } })
+
+    if (ctx.user) {
+      await ctx.prisma.activityLog.create({
+        data: {
+          action: 'DELETE',
+          entity: 'Employee',
+          details: `Deleted employee ${employee.name}`,
+          userId: ctx.user.id,
+        },
+      })
+    }
+
     return true
   }
 
