@@ -1,18 +1,51 @@
-generator client { provider = "prisma-client-js" }
-datasource db { provider = "postgresql" url = env("DATABASE_URL") }
-
+generator client {
+provider = "prisma-client-js"
+}
+datasource db {
+provider = "postgresql"
+url      = env("DATABASE_URL")
+}
+model User {
+id         String   @id @default(cuid())
+email      String   @unique
+password   String
+role       UserRole @default(EMPLOYEE)
+employeeId String?  @unique
+employee   Employee? @relation("UserToEmployee", fields: [employeeId], references: [id])
+createdAt  DateTime @default(now())
+updatedAt  DateTime @updatedAt
+}
 model Employee {
-  id         String   @id @default(cuid())
-  avatar     String?
-  name       String
-  email      String   @unique
-  age        Int
-  department String
-  position   String
-  joinDate   DateTime
-  status     String   @default("ACTIVE")
-  attendance Float    @default(95)
-  role       String   @default("EMPLOYEE")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+id          String   @id @default(cuid())
+avatar      String?
+name        String
+email       String   @unique
+phone       String?
+age         Int
+department  Department
+position    String
+joinDate    DateTime
+salary      Float?
+status      EmployeeStatus @default(ACTIVE)
+attendance  Float    @default(0)
+role        UserRole @default(EMPLOYEE)
+createdAt   DateTime @default(now())
+updatedAt   DateTime @updatedAt
+user        User?    @relation("UserToEmployee")
+}
+enum Department {
+HR
+ENGINEERING
+SALES
+MARKETING
+FINANCE
+}
+enum EmployeeStatus {
+ACTIVE
+ON_LEAVE
+TERMINATED
+}
+enum UserRole {
+ADMIN
+EMPLOYEE
 }

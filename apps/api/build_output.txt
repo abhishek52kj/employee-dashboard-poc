@@ -1,0 +1,75 @@
+
+> api@1.0.0 build
+> tsc
+
+src/index.ts(30,11): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type 'RateLimitRequestHandler' is not assignable to parameter of type 'PathParams'.
+src/index.ts(32,5): error TS7053: Element implicitly has an 'any' type because expression of type '"context"' can't be used to index type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+  Property 'context' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+src/index.ts(38,44): error TS2322: Type 'import("/Users/Abhishek/employee-dashboard-poc/node_modules/@types/express/index").Request<import("/Users/Abhishek/employee-dashboard-poc/node_modules/@types/express-serve-static-core/index").ParamsDictionary, any, any, qs.ParsedQs, Record<string, any>>' is not assignable to type 'import("/Users/Abhishek/employee-dashboard-poc/apps/api/node_modules/@types/express/index").Request<import("/Users/Abhishek/employee-dashboard-poc/apps/api/node_modules/@types/express-serve-static-core/index").ParamsDictionary, any, any, qs.ParsedQs, Record<string, any>>'.
+  Types of property 'app' are incompatible.
+    Type 'Application<Record<string, any>>' is missing the following properties from type 'Application<Record<string, any>>': link, unlink
+src/index.ts(38,49): error TS2322: Type 'import("/Users/Abhishek/employee-dashboard-poc/node_modules/@types/express/index").Response<any, Record<string, any>>' is not assignable to type 'import("/Users/Abhishek/employee-dashboard-poc/apps/api/node_modules/@types/express/index").Response<any, Record<string, any>>'.
+  Types of property 'cookie' are incompatible.
+    Type '{ (name: string, val: string, options: import("/Users/Abhishek/employee-dashboard-poc/node_modules/@types/express-serve-static-core/index").CookieOptions): import("/Users/Abhishek/employee-dashboard-poc/node_modules/@types/express/index").Response<any, Record<string, any>>; (name: string, val: any, options: import("...' is not assignable to type '{ (name: string, val: string, options: import("/Users/Abhishek/employee-dashboard-poc/apps/api/node_modules/@types/express-serve-static-core/index").CookieOptions): import("/Users/Abhishek/employee-dashboard-poc/apps/api/node_modules/@types/express/index").Response<...>; (name: string, val: any, options: import("/Us...'.
+      Target signature provides too few arguments. Expected 3 or more, but got 2.
+src/index.ts(38,108): error TS7053: Element implicitly has an 'any' type because expression of type '"user"' can't be used to index type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+  Property 'user' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+src/index.ts(40,5): error TS2322: Type 'true' is not assignable to type 'false | PersistedQueryOptions | undefined'.
+src/index.ts(45,28): error TS2322: Type 'Express' is not assignable to type 'Application'.
+  Types of property 'get' are incompatible.
+    Type '((name: string) => any) & IRouterMatcher<Express, any>' is not assignable to type '((name: string) => any) & IRouterMatcher<Application<Record<string, any>>, any>'.
+      Type '((name: string) => any) & IRouterMatcher<Express, any>' is not assignable to type 'IRouterMatcher<Application<Record<string, any>>, any>'.
+        Types of parameters 'name' and 'path' are incompatible.
+          Type 'PathParams' is not assignable to type 'string'.
+            Type 'RegExp' is not assignable to type 'string'.
+src/middlewares/auth.ts(3,45): error TS2307: Cannot find module 'graphql-shield' or its corresponding type declarations.
+src/middlewares/auth.ts(16,19): error TS7006: Parameter 'parent' implicitly has an 'any' type.
+src/middlewares/auth.ts(16,27): error TS7006: Parameter 'args' implicitly has an 'any' type.
+src/middlewares/auth.ts(31,19): error TS7006: Parameter 'parent' implicitly has an 'any' type.
+src/middlewares/auth.ts(31,27): error TS7006: Parameter 'args' implicitly has an 'any' type.
+src/middlewares/auth.ts(39,19): error TS7006: Parameter 'parent' implicitly has an 'any' type.
+src/middlewares/auth.ts(39,27): error TS7006: Parameter 'args' implicitly has an 'any' type.
+src/middlewares/auth.ts(39,47): error TS7006: Parameter 'info' implicitly has an 'any' type.
+src/resolvers/auth.ts(22,16): error TS2693: 'User' only refers to a type, but is being used as a value here.
+src/resolvers/employee.ts(147,7): error TS2322: Type '{ department: $Enums.Department | undefined; status: $Enums.EmployeeStatus | undefined; age: { gte: number | undefined; lte: number | undefined; }; OR: ({ name: { ...; }; email?: undefined; } | { ...; })[] | undefined; }' is not assignable to type 'EmployeeWhereInput'.
+  Types of property 'OR' are incompatible.
+    Type '({ name: { contains: string; mode: string; }; email?: undefined; } | { email: { contains: string; mode: string; }; name?: undefined; })[] | undefined' is not assignable to type 'EmployeeWhereInput[] | undefined'.
+      Type '({ name: { contains: string; mode: string; }; email?: undefined; } | { email: { contains: string; mode: string; }; name?: undefined; })[]' is not assignable to type 'EmployeeWhereInput[]'.
+        Type '{ name: { contains: string; mode: string; }; email?: undefined; } | { email: { contains: string; mode: string; }; name?: undefined; }' is not assignable to type 'EmployeeWhereInput'.
+          Type '{ name: { contains: string; mode: string; }; email?: undefined; }' is not assignable to type 'EmployeeWhereInput'.
+            Types of property 'name' are incompatible.
+              Type '{ contains: string; mode: string; }' is not assignable to type 'string | StringFilter<"Employee"> | undefined'.
+                Type '{ contains: string; mode: string; }' is not assignable to type 'StringFilter<"Employee">'.
+                  Types of property 'mode' are incompatible.
+                    Type 'string' is not assignable to type 'QueryMode | undefined'.
+src/resolvers/employee.ts(148,7): error TS2322: Type '{ [x: string]: "asc" | "desc"; name?: undefined; } | { name: string; }' is not assignable to type 'EmployeeOrderByWithRelationInput | EmployeeOrderByWithRelationInput[] | undefined'.
+  Type '{ name: string; }' is not assignable to type 'EmployeeOrderByWithRelationInput | EmployeeOrderByWithRelationInput[] | undefined'.
+    Type '{ name: string; }' is not assignable to type 'EmployeeOrderByWithRelationInput'.
+      Types of property 'name' are incompatible.
+        Type 'string' is not assignable to type 'SortOrder | undefined'.
+src/resolvers/employee.ts(154,58): error TS2322: Type '{ department: $Enums.Department | undefined; status: $Enums.EmployeeStatus | undefined; age: { gte: number | undefined; lte: number | undefined; }; OR: ({ name: { ...; }; email?: undefined; } | { ...; })[] | undefined; }' is not assignable to type 'EmployeeWhereInput'.
+  Types of property 'OR' are incompatible.
+    Type '({ name: { contains: string; mode: string; }; email?: undefined; } | { email: { contains: string; mode: string; }; name?: undefined; })[] | undefined' is not assignable to type 'EmployeeWhereInput[] | undefined'.
+      Type '({ name: { contains: string; mode: string; }; email?: undefined; } | { email: { contains: string; mode: string; }; name?: undefined; })[]' is not assignable to type 'EmployeeWhereInput[]'.
+        Type '{ name: { contains: string; mode: string; }; email?: undefined; } | { email: { contains: string; mode: string; }; name?: undefined; }' is not assignable to type 'EmployeeWhereInput'.
+          Type '{ name: { contains: string; mode: string; }; email?: undefined; }' is not assignable to type 'EmployeeWhereInput'.
+            Types of property 'name' are incompatible.
+              Type '{ contains: string; mode: string; }' is not assignable to type 'string | StringFilter<"Employee"> | undefined'.
+                Type '{ contains: string; mode: string; }' is not assignable to type 'StringFilter<"Employee">'.
+                  Types of property 'mode' are incompatible.
+                    Type 'string' is not assignable to type 'QueryMode | undefined'.
+src/resolvers/employee.ts(162,41): error TS2322: Type 'EmployeeInput' is not assignable to type '(Without<EmployeeCreateInput, EmployeeUncheckedCreateInput> & EmployeeUncheckedCreateInput) | (Without<...> & EmployeeCreateInput)'.
+  Type 'EmployeeInput' is not assignable to type 'Without<EmployeeUncheckedCreateInput, EmployeeCreateInput> & EmployeeCreateInput'.
+    Type 'EmployeeInput' is not assignable to type 'EmployeeCreateInput'.
+      Types of property 'name' are incompatible.
+        Type 'string | undefined' is not assignable to type 'string'.
+          Type 'undefined' is not assignable to type 'string'.
+npm error Lifecycle script `build` failed with error:
+npm error code 2
+npm error path /Users/Abhishek/employee-dashboard-poc/apps/api
+npm error workspace api@1.0.0
+npm error location /Users/Abhishek/employee-dashboard-poc/apps/api
+npm error command failed
+npm error command sh -c tsc
